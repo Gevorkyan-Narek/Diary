@@ -2,21 +2,24 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <!--    android:background="#DBE8F6"-->
+    android:layout_height="match_parent"
+    android:padding="5dp">
 
+    <!-- Header -->
     <LinearLayout
         android:id="@+id/header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/border_days_of_week"
+        android:backgroundTint="#C0CCF8"
+        android:backgroundTintMode="src_over"
         android:orientation="vertical">
 
         <TextView
             android:id="@+id/year_header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fontFamily="cursive"
-            android:text="2020"
+            android:text="@string/year_header"
             android:textAlignment="center"
             android:textColor="#000000"
             android:textSize="38sp"
@@ -26,8 +29,7 @@
             android:id="@+id/day_header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fontFamily="cursive"
-            android:text="8 June"
+            android:text="@string/day_month_header"
             android:textAlignment="center"
             android:textColor="#000000"
             android:textSize="58sp"
@@ -37,12 +39,41 @@
             android:id="@+id/day_of_week_header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fontFamily="cursive"
-            android:text="Monday"
+            android:text="@string/day_of_week_header"
             android:textAlignment="center"
             android:textColor="#000000"
             android:textSize="38sp"
             android:textStyle="bold" />
+    </LinearLayout>
+
+
+    <!-- Header of Calendar-->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/header"
+        android:layout_marginTop="50dp"
+        android:orientation="vertical">
+        <LinearLayout
+            android:id="@+id/month_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/name_month"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-condensed-light"
+                android:text="Test"
+                android:textColor="@android:color/black"
+                android:textSize="30sp"/>
+        </LinearLayout>
+
+        <View
+            android:layout_width="wrap_content"
+            android:layout_height="3dp"
+            android:background="@drawable/black_line" />
     </LinearLayout>
 
     <LinearLayout
@@ -50,17 +81,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/header"
-        android:background="@drawable/border_days_of_week">
-
-        <TextView
-            android:id="@+id/legendText1"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:text="SUN"
-            android:textColor="#000000"
-            android:textSize="20sp" />
+        android:layout_marginTop="100dp">
 
         <TextView
             android:id="@+id/legendText2"
@@ -70,7 +91,8 @@
             android:gravity="center"
             android:text="MON"
             android:textColor="#000000"
-            android:textSize="20sp" />
+            android:textSize="20sp"
+            />
 
         <TextView
             android:id="@+id/legendText3"
@@ -121,7 +143,19 @@
             android:text="SAT"
             android:textColor="#000000"
             android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/legendText1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="SUN"
+            android:textColor="#000000"
+            android:textSize="20sp" />
     </LinearLayout>
+
+    <!-- Calendar -->
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -132,7 +166,7 @@
             android:id="@+id/calendarView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:clickable="true"
             app:cv_dayViewResource="@layout/day_view_resource" />
-        <!--            app:cv_monthHeaderResource="@layout/month_header_resource"/>-->
     </LinearLayout>
 </RelativeLayout>

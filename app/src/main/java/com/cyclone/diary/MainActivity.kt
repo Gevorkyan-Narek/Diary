@@ -12,10 +12,5 @@ class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-//        AndroidThreeTen.init(this)
-
-//        val frag = CalendarViewFragment.newInstance()
-
-//        supportFragmentManager.beginTransaction().add(R.id.calendar_fragment, frag).commit()
     }
 }
