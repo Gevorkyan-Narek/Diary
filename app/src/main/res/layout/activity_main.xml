@@ -6,9 +6,8 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <fragment
+    <FrameLayout
         android:id="@+id/calendar_fragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:name="com.cyclone.diary.View.CalendarViewFragment"/>
+        android:layout_height="match_parent"/>
 </RelativeLayout>

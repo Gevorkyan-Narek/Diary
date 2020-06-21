@@ -2,22 +2,15 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item>
         <layer-list>
-            <item
-                android:height="50dp"
-                android:width="50dp"
-                android:gravity="center_horizontal|center_vertical">
+            <item android:top="30dp"
+                android:width="5dp"
+                android:height="5dp"
+                android:gravity="center_vertical|center_horizontal">
                 <shape android:shape="oval">
-                    <stroke android:width="1dp"/>
+                    <solid android:color="@android:color/holo_blue_dark"/>
                 </shape>
             </item>
-            <item android:top="25dp"
-                android:width="25dp"
-                android:start="15dp">
-                <shape android:shape="line">
-                    <stroke android:width="1dp"
-                        android:color="@android:color/holo_red_dark"/>
-                </shape>
-            </item>
+
         </layer-list>
     </item>
 </selector>
