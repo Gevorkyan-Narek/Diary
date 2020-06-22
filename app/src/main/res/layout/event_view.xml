@@ -46,8 +46,15 @@
             android:id="@+id/time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Choose time"
-            android:textSize="25sp"/>
+            android:text="Start time"
+            android:textSize="20sp"/>
+        <Button
+            android:layout_marginLeft="10dp"
+            android:id="@+id/endtime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="End time"
+            android:textSize="20sp"/>
     </LinearLayout>
 
     <LinearLayout

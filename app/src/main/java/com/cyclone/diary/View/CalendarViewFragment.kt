@@ -1,6 +1,8 @@
 package com.cyclone.diary.View
 
+import android.content.res.ColorStateList
 import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -80,6 +82,8 @@ class CalendarViewFragment : Fragment() {
     ) {
         val events = EventModel().getEvents(realm)
         var previousView: View? = null
+        var previousDay: CalendarDay? = null
+        val markedDays = mutableListOf<CalendarDay>()
 
         view.calendarView.dayBinder = object : DayBinder<DayViewContainer> {
             override fun create(view: View) = DayViewContainer(view)
@@ -87,6 +91,12 @@ class CalendarViewFragment : Fragment() {
                 // Day of month
                 container.tv.text = day.date.dayOfMonth.toString()
                 // Current day
+                events.forEach { t: Event? ->
+                    if (t?.date == day.date.toString()) {
+                        container.tv.setBackgroundResource(R.drawable.marked_day)
+                        markedDays.add(day)
+                    }
+                }
                 if (day.date == LocalDate.now()) {
                     currentEvents.clear()
                     container.tv.setBackgroundResource(R.drawable.oval_gap)
@@ -106,14 +116,17 @@ class CalendarViewFragment : Fragment() {
                     events.forEach { t: Event? ->
                         if (t?.date == day.date.toString()) {
                             currentEvents.add(t)
-                            container.tv.setBackgroundResource(R.drawable.marked_day)
                         }
                     }
                     recyclerView.adapter?.notifyDataSetChanged()
-                    if (previousView != null) {
-                        previousView?.setBackgroundResource(0)
-                    }
+                    if (previousDay?.date == LocalDate.now()) {
+                        previousView?.background?.setTintList(null)
+                        previousView?.setBackgroundResource(R.drawable.oval_gap)
+                    } else if (markedDays.contains(previousDay)) previousView?.setBackgroundResource(R.drawable.marked_day)
+                    else previousView?.setBackgroundResource(0)
+
                     previousView = v
+                    previousDay = day
                     v.setBackgroundResource(R.drawable.oval_gap)
                     v.background.setTint(Color.RED)
 
@@ -131,14 +144,14 @@ class CalendarViewFragment : Fragment() {
         val currentMonth = YearMonth.now()
 
         view.calendarView.setup(
-            currentMonth.minusMonths(6),
-            currentMonth.plusMonths(6),
+            currentMonth.minusMonths(12),
+            currentMonth.plusMonths(12),
             firstDayOfWeek
         )
 
         view.calendarView.monthScrollListener = { calendarMonth ->
             view.name_month.text =
-                calendarMonth.yearMonth.month.getDisplayName(TextStyle.FULL, Locale.ENGLISH)
+                calendarMonth.yearMonth.month.getDisplayName(TextStyle.FULL, Locale.ENGLISH) + " " + calendarMonth.year
         }
         view.calendarView.scrollToMonth(currentMonth)
         view.calendarView.inDateStyle = InDateStyle.ALL_MONTHS

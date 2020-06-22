@@ -75,6 +75,21 @@ class EventViewFragment : Fragment() {
             ).show()
         }
 
+        view.endtime.setOnClickListener {
+            val tpd = TimePickerDialog.OnTimeSetListener { view, hourOfDay, minute ->
+                c.set(Calendar.HOUR_OF_DAY, hourOfDay)
+                c.set(Calendar.MINUTE, minute)
+                endtime.text = SimpleDateFormat("HH:mm", Locale.getDefault()).format(c.time)
+            }
+            TimePickerDialog(
+                context,
+                tpd,
+                c.get(Calendar.HOUR_OF_DAY),
+                c.get(Calendar.MINUTE),
+                true
+            ).show()
+        }
+
         view.add.setOnClickListener {
             val key = eventModel.addEvent(
                 realm,
@@ -83,6 +98,7 @@ class EventViewFragment : Fragment() {
                         0,
                         title.text.toString(),
                         time.text.toString(),
+                        endtime.text.toString(),
                         date.text.toString(),
                         description.text.toString()
                     )
@@ -91,6 +107,7 @@ class EventViewFragment : Fragment() {
                         eventModel.getLastEvent(realm).id + 1,
                         title.text.toString(),
                         time.text.toString(),
+                        endtime.text.toString(),
                         date.text.toString(),
                         description.text.toString()
                     )
