@@ -32,6 +32,30 @@ import java.util.*
 
 class EventViewFragment : Fragment() {
     var eventModel = EventModel()
+
+    companion object {
+        fun newInstance(
+            id: Int,
+            title: String,
+            time: String,
+            endtime: String,
+            date: String,
+            description: String
+        ): EventViewFragment {
+            val args = Bundle()
+            args.putInt("id", id)
+            args.putString("title", title)
+            args.putString("time", time)
+            args.putString("endtime", endtime)
+            args.putString("date", date)
+            args.putString("description", description)
+            args.putBoolean("update", true)
+            val fragment = EventViewFragment()
+            fragment.arguments = args
+            return fragment
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -43,6 +67,22 @@ class EventViewFragment : Fragment() {
         Realm.init(context)
         val realm = Realm.getInstance(RealmUtility.getDefaultConfig())
 
+        if (arguments != null) {
+            view.title.setText(arguments?.getString("title"))
+            view.time.text = arguments?.getString("time")
+            view.endtime.text = arguments?.getString("endtime")
+            view.date.setText(arguments?.getString("date"))
+            view.description.setText(arguments?.getString("description"))
+        }
+
+        datePicker(view, c)
+        timePicker(view, c)
+        buttonListener(view, realm)
+
+        return view
+    }
+
+    private fun datePicker(view: View, c: Calendar) {
         view.date_picker.setOnClickListener {
             val dpd = DatePickerDialog(
                 view.context,
@@ -59,7 +99,9 @@ class EventViewFragment : Fragment() {
             )
             dpd.show()
         }
+    }
 
+    private fun timePicker(view: View, c: Calendar) {
         view.time.setOnClickListener {
             val tpd = TimePickerDialog.OnTimeSetListener { view, hourOfDay, minute ->
                 c.set(Calendar.HOUR_OF_DAY, hourOfDay)
@@ -89,37 +131,62 @@ class EventViewFragment : Fragment() {
                 true
             ).show()
         }
+    }
 
-        view.add.setOnClickListener {
-            val key = eventModel.addEvent(
-                realm,
-                if (eventModel.getEvents(realm).count() <= 0) {
-                    Event(
-                        0,
-                        title.text.toString(),
-                        time.text.toString(),
-                        endtime.text.toString(),
-                        date.text.toString(),
-                        description.text.toString()
-                    )
+    private fun buttonListener(view: View, realm: Realm) {
+        if (arguments == null) {
+            view.add.setOnClickListener {
+                val key = eventModel.addEvent(
+                    realm,
+                    if (eventModel.getEvents(realm).count() <= 0) {
+                        Event(
+                            0,
+                            title.text.toString(),
+                            time.text.toString(),
+                            endtime.text.toString(),
+                            date.text.toString(),
+                            description.text.toString()
+                        )
+                    } else {
+                        Event(
+                            eventModel.getLastEvent(realm).id + 1,
+                            title.text.toString(),
+                            time.text.toString(),
+                            endtime.text.toString(),
+                            date.text.toString(),
+                            description.text.toString()
+                        )
+                    }
+                )
+                if (key) {
+                    Toast.makeText(context, "Added", Toast.LENGTH_LONG).show()
+                    fragmentManager?.popBackStack()
                 } else {
+                    Toast.makeText(context, "Error", Toast.LENGTH_LONG).show()
+                }
+            }
+        } else {
+            view.add.text = "Update"
+            Toast.makeText(context, "${arguments?.getInt("id")}", Toast.LENGTH_SHORT).show()
+            view.add.setOnClickListener {
+                val key = eventModel.editEvent(
+                    realm,
                     Event(
-                        eventModel.getLastEvent(realm).id + 1,
+                        arguments!!.getInt("id"),
                         title.text.toString(),
                         time.text.toString(),
                         endtime.text.toString(),
                         date.text.toString(),
                         description.text.toString()
                     )
+                )
+                if (key) {
+                    Toast.makeText(context, "Updated", Toast.LENGTH_LONG).show()
+                    fragmentManager?.popBackStack()
+                } else {
+                    Toast.makeText(context, "Error", Toast.LENGTH_LONG).show()
                 }
-            )
-            if (key) {
-                Toast.makeText(context, "Added", Toast.LENGTH_LONG).show()
-                fragmentManager?.popBackStack()
-            } else {
-                Toast.makeText(context, "Error", Toast.LENGTH_LONG).show()
             }
         }
-        return view
     }
 }

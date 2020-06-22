@@ -67,7 +67,6 @@ class CalendarViewFragment : Fragment() {
         }
 
         recyclerView.adapter = Adapter(currentEvents)
-
         return view
     }
 

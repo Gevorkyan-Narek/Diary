@@ -20,7 +20,7 @@ class EventModel : EventInterface {
     override fun editEvent(realm: Realm, event: Event): Boolean {
         return try {
             realm.beginTransaction()
-            realm.copyToRealm(event)
+            realm.copyToRealmOrUpdate(event)
             realm.commitTransaction()
             true
         } catch (e: Exception) {

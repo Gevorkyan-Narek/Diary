@@ -2,7 +2,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="10dp">
+    android:padding="10dp"
+    android:background="@android:color/white">
 
     <LinearLayout
         android:id="@+id/title_line"
@@ -23,6 +24,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
+            android:textSize="25sp"
             android:inputType="text" />
     </LinearLayout>
 
@@ -46,14 +48,14 @@
             android:id="@+id/time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Start time"
+            android:text="Start"
             android:textSize="20sp"/>
         <Button
             android:layout_marginLeft="10dp"
             android:id="@+id/endtime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="End time"
+            android:text="End"
             android:textSize="20sp"/>
     </LinearLayout>
 
@@ -109,6 +111,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
+            android:textSize="25sp"
             android:inputType="textMultiLine" />
     </LinearLayout>
 
@@ -117,6 +120,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
+        android:layout_marginBottom="30dp"
         android:text="Add"
-        android:layout_marginBottom="30dp"/>
+        android:textSize="20sp" />
 </RelativeLayout>
