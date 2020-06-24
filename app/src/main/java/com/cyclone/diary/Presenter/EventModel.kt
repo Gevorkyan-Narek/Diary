@@ -1,6 +1,6 @@
-package com.cyclone.diary.Model
+package com.cyclone.diary.Presenter
 
-import com.cyclone.diary.Presenter.EventInterface
+import com.cyclone.diary.Model.Event
 import io.realm.Realm
 import io.realm.RealmResults
 import java.lang.Exception

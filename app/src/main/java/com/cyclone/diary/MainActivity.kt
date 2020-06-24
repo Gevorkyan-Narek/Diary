@@ -18,9 +18,10 @@ class MainActivity : FragmentActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        val calendarViewFragment = CalendarViewFragment.newInstance()
         val fragmentManager = supportFragmentManager
         val fragmentTransaction = fragmentManager.beginTransaction()
 
-        fragmentTransaction.replace(R.id.calendar_fragment, CalendarViewFragment.newInstance()).commit()
+        fragmentTransaction.add(calendarViewFragment, "Calendar").replace(R.id.calendar_fragment, calendarViewFragment).commit()
     }
 }

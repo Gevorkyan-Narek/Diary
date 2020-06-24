@@ -6,28 +6,19 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.ImageButton
-import android.widget.TimePicker
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.cyclone.diary.Model.Event
-import com.cyclone.diary.Model.EventModel
+import com.cyclone.diary.Presenter.EventModel
 import com.cyclone.diary.Presenter.RealmUtility
 import com.cyclone.diary.R
 import io.realm.Realm
-import io.realm.RealmConfiguration
 import kotlinx.android.synthetic.main.event_view.*
 import kotlinx.android.synthetic.main.event_view.view.*
 import kotlinx.android.synthetic.main.event_view.view.date
 import kotlinx.android.synthetic.main.event_view.view.time
 import kotlinx.android.synthetic.main.event_view.view.title
-import kotlinx.android.synthetic.main.fragment_calendar.view.*
-import kotlinx.android.synthetic.main.fragment_calendar.view.add_event
-import java.text.DateFormat
 import java.text.SimpleDateFormat
-import java.time.Duration
-import java.time.format.DateTimeFormatter
 import java.util.*
 
 class EventViewFragment : Fragment() {
@@ -167,7 +158,6 @@ class EventViewFragment : Fragment() {
             }
         } else {
             view.add.text = "Update"
-            Toast.makeText(context, "${arguments?.getInt("id")}", Toast.LENGTH_SHORT).show()
             view.add.setOnClickListener {
                 val key = eventModel.editEvent(
                     realm,

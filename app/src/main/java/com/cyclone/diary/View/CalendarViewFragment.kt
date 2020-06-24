@@ -1,18 +1,15 @@
 package com.cyclone.diary.View
 
-import android.content.res.ColorStateList
 import android.graphics.Color
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.cyclone.diary.Model.Event
-import com.cyclone.diary.Model.EventModel
+import com.cyclone.diary.Presenter.EventModel
 import com.cyclone.diary.Presenter.Adapter
 import com.cyclone.diary.Presenter.RealmUtility
 import com.cyclone.diary.R
@@ -21,10 +18,7 @@ import com.kizitonwose.calendarview.model.*
 import com.kizitonwose.calendarview.ui.DayBinder
 import com.kizitonwose.calendarview.ui.ViewContainer
 import io.realm.Realm
-import io.realm.RealmConfiguration
 import kotlinx.android.synthetic.main.day_view_resource.view.*
-import kotlinx.android.synthetic.main.event_view.*
-import kotlinx.android.synthetic.main.fragment_calendar.*
 import kotlinx.android.synthetic.main.fragment_calendar.view.*
 import kotlinx.android.synthetic.main.fragment_calendar.view.recycler_view
 import org.threeten.bp.*
@@ -63,7 +57,8 @@ class CalendarViewFragment : Fragment() {
 
         view.add_event.setOnClickListener { v ->
             requireActivity().supportFragmentManager.beginTransaction()
-                .replace(R.id.calendar_fragment, EventViewFragment()).addToBackStack("").commit()
+                .replace(R.id.calendar_fragment, EventViewFragment()).addToBackStack("Calendar")
+                .commit()
         }
 
         recyclerView.adapter = Adapter(currentEvents)
@@ -98,6 +93,10 @@ class CalendarViewFragment : Fragment() {
                 }
                 if (day.date == LocalDate.now()) {
                     currentEvents.clear()
+                    view.selected_day.text = "${day.date.dayOfWeek.getDisplayName(
+                        TextStyle.FULL,
+                        Locale.ENGLISH
+                    )} ${day.date.dayOfMonth}"
                     container.tv.setBackgroundResource(R.drawable.oval_gap)
                     events.forEach { t: Event? ->
                         if (t?.date == day.date.toString())
@@ -121,7 +120,9 @@ class CalendarViewFragment : Fragment() {
                     if (previousDay?.date == LocalDate.now()) {
                         previousView?.background?.setTintList(null)
                         previousView?.setBackgroundResource(R.drawable.oval_gap)
-                    } else if (markedDays.contains(previousDay)) previousView?.setBackgroundResource(R.drawable.marked_day)
+                    } else if (markedDays.contains(previousDay)) previousView?.setBackgroundResource(
+                        R.drawable.marked_day
+                    )
                     else previousView?.setBackgroundResource(0)
 
                     previousView = v
@@ -150,7 +151,10 @@ class CalendarViewFragment : Fragment() {
 
         view.calendarView.monthScrollListener = { calendarMonth ->
             view.name_month.text =
-                calendarMonth.yearMonth.month.getDisplayName(TextStyle.FULL, Locale.ENGLISH) + " " + calendarMonth.year
+                calendarMonth.yearMonth.month.getDisplayName(
+                    TextStyle.FULL,
+                    Locale.ENGLISH
+                ) + " " + calendarMonth.year
         }
         view.calendarView.scrollToMonth(currentMonth)
         view.calendarView.inDateStyle = InDateStyle.ALL_MONTHS
