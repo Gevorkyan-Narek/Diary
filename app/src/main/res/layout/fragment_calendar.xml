@@ -25,8 +25,8 @@
 
             <ImageView
                 android:layout_width="match_parent"
-                android:layout_marginTop="5dp"
                 android:layout_height="3dp"
+                android:layout_marginTop="5dp"
                 android:background="@drawable/black_line" />
         </LinearLayout>
 
@@ -115,24 +115,27 @@
             android:clickable="true"
             app:cv_dayViewResource="@layout/day_view_resource" />
     </com.google.android.material.appbar.AppBarLayout>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/toolbar"
         android:orientation="vertical"
         android:padding="10dp">
+
         <TextView
             android:id="@+id/selected_day"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="25sp"
-            android:layout_marginTop="10dp"
+            android:layout_margin="10dp"
             android:gravity="center_horizontal"
-            android:textColor="@android:color/black"/>
+            android:textColor="@android:color/black"
+            android:textSize="25sp" />
+
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_view"
+            android:id="@+id/time_recycler_view"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent"></androidx.recyclerview.widget.RecyclerView>
     </LinearLayout>
 
     <ImageButton
@@ -145,5 +148,5 @@
         android:layout_marginBottom="50dp"
         android:background="@drawable/time_button_view"
         android:src="@android:drawable/ic_input_add"
-        android:tint="@android:color/black"/>
+        android:tint="@android:color/black" />
 </RelativeLayout>

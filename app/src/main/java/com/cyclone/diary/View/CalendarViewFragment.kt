@@ -5,6 +5,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -20,10 +22,12 @@ import com.kizitonwose.calendarview.ui.ViewContainer
 import io.realm.Realm
 import kotlinx.android.synthetic.main.day_view_resource.view.*
 import kotlinx.android.synthetic.main.fragment_calendar.view.*
-import kotlinx.android.synthetic.main.fragment_calendar.view.recycler_view
 import org.threeten.bp.*
 import org.threeten.bp.format.TextStyle
 import org.threeten.bp.temporal.WeekFields
+import java.text.SimpleDateFormat
+import java.time.LocalTime
+import java.time.ZoneId
 import java.util.*
 
 class CalendarViewFragment : Fragment() {
@@ -48,10 +52,9 @@ class CalendarViewFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_calendar, container, false)
 
-        val recyclerView = view.recycler_view
+        val recyclerView = view.time_recycler_view
         recyclerView.layoutManager = LinearLayoutManager(context)
         val currentEvents = mutableListOf<Event>()
-
         calendarDayBinder(view, currentEvents, recyclerView)
         calendarMonthBinder(view)
 
@@ -85,12 +88,15 @@ class CalendarViewFragment : Fragment() {
                 // Day of month
                 container.tv.text = day.date.dayOfMonth.toString()
                 // Current day
-                events.forEach { t: Event? ->
-                    if (t?.date == day.date.toString()) {
-                        container.tv.setBackgroundResource(R.drawable.marked_day)
-                        markedDays.add(day)
+                if(!events.isEmpty()) {
+                    events.forEach { t: Event ->
+                        if (t.starttime.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().toString() == day.date.toString()) {
+                            container.tv.setBackgroundResource(R.drawable.marked_day)
+                            markedDays.add(day)
+                        }
                     }
                 }
+
                 if (day.date == LocalDate.now()) {
                     currentEvents.clear()
                     view.selected_day.text = "${day.date.dayOfWeek.getDisplayName(
@@ -98,10 +104,8 @@ class CalendarViewFragment : Fragment() {
                         Locale.ENGLISH
                     )} ${day.date.dayOfMonth}"
                     container.tv.setBackgroundResource(R.drawable.oval_gap)
-                    events.forEach { t: Event? ->
-                        if (t?.date == day.date.toString())
-                            currentEvents.add(t)
-                    }
+                    currentEvents.addAll(events.filter { event -> event.starttime.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().toString() == day.date.toString() })
+
                 }
                 // Day colors
                 container.tv.setTextColor(
@@ -111,11 +115,7 @@ class CalendarViewFragment : Fragment() {
                 // Click listener
                 container.tv.setOnClickListener { v ->
                     currentEvents.clear()
-                    events.forEach { t: Event? ->
-                        if (t?.date == day.date.toString()) {
-                            currentEvents.add(t)
-                        }
-                    }
+                    currentEvents.addAll(events.filter { event -> event.starttime.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().toString() == day.date.toString() })
                     recyclerView.adapter?.notifyDataSetChanged()
                     if (previousDay?.date == LocalDate.now()) {
                         previousView?.background?.setTintList(null)
