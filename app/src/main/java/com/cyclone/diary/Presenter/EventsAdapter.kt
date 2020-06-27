@@ -13,7 +13,8 @@ import com.cyclone.diary.View.EventViewFragment
 import io.realm.Realm
 import java.time.ZoneId
 
-class EventsAdapter(private val values: MutableList<Event>) : RecyclerView.Adapter<EventsAdapter.ViewHolder>() {
+class EventsAdapter(private val values: MutableList<Event>) :
+    RecyclerView.Adapter<EventsAdapter.ViewHolder>() {
     lateinit var parent: ViewGroup
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val itemView =
@@ -26,14 +27,16 @@ class EventsAdapter(private val values: MutableList<Event>) : RecyclerView.Adapt
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.title.text = values[position].title
-        holder.fulltime.text = "${values[position].starttime.toInstant().atZone(ZoneId.systemDefault())
-                        .toLocalTime()} - ${values[position].endtime.toInstant().atZone(ZoneId.systemDefault())
-                        .toLocalTime()}"
+        holder.fulltime.text =
+            "${values[position].starttime.toInstant().atZone(ZoneId.systemDefault())
+                .toLocalTime()} - ${values[position].endtime.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalTime()}"
         eventView(holder, position)
         deleteEvent(holder, position)
     }
 
-        private fun eventView(holder: ViewHolder, position: Int) {
+    private fun eventView(holder: ViewHolder, position: Int) {
         holder.itemView.setOnClickListener { v ->
             val detailedview = EventViewFragment.newInstance(
                 values[position].id,

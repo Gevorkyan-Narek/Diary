@@ -62,7 +62,6 @@ class Adapter(private val values: MutableList<Event>) : RecyclerView.Adapter<Ada
                     timeList[position].hour <= event.endtime.toInstant()
                 .atZone(ZoneId.systemDefault()).toLocalTime().hour
         }.toMutableList()
-//        recyclerView.addItemDecoration(DividerItemDecoration(holder.itemView.context,))
         recyclerView.adapter = EventsAdapter(events)
     }
 
