@@ -1,53 +1,66 @@
 package com.cyclone.diary.Presenter
 
+import android.content.Context
 import com.cyclone.diary.Model.Event
 import io.realm.Realm
+import io.realm.RealmConfiguration
 import io.realm.RealmResults
 import java.lang.Exception
 
-class EventModel : EventInterface {
-    override fun addEvent(realm: Realm, event: Event): Boolean {
-        return try {
-            realm.beginTransaction()
-            realm.copyToRealmOrUpdate(event)
-            realm.commitTransaction()
-            true
-        } catch (e: Exception) {
-            false
-        }
-    }
+class EventModel {
 
-    override fun editEvent(realm: Realm, event: Event): Boolean {
-        return try {
-            realm.beginTransaction()
-            realm.copyToRealmOrUpdate(event)
-            realm.commitTransaction()
-            true
-        } catch (e: Exception) {
-            false
-        }
-    }
+    companion object {
+        private lateinit var realm: Realm
 
-    override fun deleteEvent(realm: Realm, event_id: Int): Boolean {
-        return try {
-            realm.beginTransaction()
-            realm.where(Event::class.java).equalTo("id", event_id).findFirst()?.deleteFromRealm()
-            realm.commitTransaction()
-            true
-        } catch (e: Exception) {
-            false
+        fun realmInit(context: Context) {
+            Realm.init(context)
+            realm = Realm.getInstance(RealmUtility.getDefaultConfig())
         }
-    }
 
-    override fun getEvent(realm: Realm, event_id: Int): Event {
+        fun addEvent(event: Event): Boolean {
+            return try {
+                realm.beginTransaction()
+                realm.copyToRealmOrUpdate(event)
+                realm.commitTransaction()
+                true
+            } catch (e: Exception) {
+                false
+            }
+        }
+
+        fun editEvent(event: Event): Boolean {
+            return try {
+                realm.beginTransaction()
+                realm.copyToRealmOrUpdate(event)
+                realm.commitTransaction()
+                true
+            } catch (e: Exception) {
+                false
+            }
+        }
+
+        fun deleteEvent(event_id: Int): Boolean {
+            return try {
+                realm.beginTransaction()
+                realm.where(Event::class.java).equalTo("id", event_id).findFirst()
+                    ?.deleteFromRealm()
+                realm.commitTransaction()
+                true
+            } catch (e: Exception) {
+                false
+            }
+        }
+
+        fun getEvent(event_id: Int): Event {
             return realm.where(Event::class.java).equalTo("id", event_id).findFirst()!!
-    }
+        }
 
-    fun getEvents(realm: Realm): RealmResults<Event> {
-        return realm.where(Event::class.java).findAll()
-    }
+        fun getEvents(): RealmResults<Event> {
+            return realm.where(Event::class.java).findAll()
+        }
 
-    fun getLastEvent(realm: Realm): Event {
-        return realm.where(Event::class.java).findAll().last()!!
+        fun getLastEvent(): Event {
+            return realm.where(Event::class.java).findAll().last()!!
+        }
     }
 }

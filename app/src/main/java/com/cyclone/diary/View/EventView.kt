@@ -34,7 +34,6 @@ import kotlin.math.min
 
 class EventView : AppCompatActivity() {
 
-    var eventModel = EventModel()
     private val cStart = Calendar.getInstance()
     private val cEnd = Calendar.getInstance()
     var arguments: Bundle? = null
@@ -43,8 +42,6 @@ class EventView : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.event_view)
 
-        Realm.init(this)
-        val realm = Realm.getInstance(RealmUtility.getDefaultConfig())
         arguments = intent.extras
 
         if (arguments != null) {
@@ -61,7 +58,7 @@ class EventView : AppCompatActivity() {
 
         datePicker()
         timePicker()
-        buttonListener(realm)
+        buttonListener()
     }
 
     private fun datePicker() {
@@ -115,7 +112,7 @@ class EventView : AppCompatActivity() {
         }
     }
 
-    private fun buttonListener(realm: Realm) {
+    private fun buttonListener() {
         if (arguments == null) {
             add.setOnClickListener {
                 val dateStart = LocalDateTime.of(
@@ -132,9 +129,8 @@ class EventView : AppCompatActivity() {
                     cEnd.get(Calendar.HOUR_OF_DAY),
                     cEnd.get(Calendar.MINUTE)
                 )
-                val key = eventModel.addEvent(
-                    realm,
-                    if (eventModel.getEvents(realm).count() <= 0) {
+                val key = EventModel.addEvent(
+                    if (EventModel.getEvents().count() <= 0) {
                         Event(
                             0,
                             event_title.text.toString(),
@@ -144,7 +140,7 @@ class EventView : AppCompatActivity() {
                         )
                     } else {
                         Event(
-                            eventModel.getLastEvent(realm).id + 1,
+                            EventModel.getLastEvent().id + 1,
                             event_title.text.toString(),
                             Date.from(dateStart.atZone(ZoneId.systemDefault()).toInstant()),
                             Date.from(dateEnd.atZone(ZoneId.systemDefault()).toInstant()),
@@ -177,8 +173,7 @@ class EventView : AppCompatActivity() {
                     cEnd.get(Calendar.HOUR_OF_DAY),
                     cEnd.get(Calendar.MINUTE)
                 )
-                val key = eventModel.editEvent(
-                    realm,
+                val key = EventModel.editEvent(
                     Event(
                         arguments!!.getInt("id"),
                         event_title.text.toString(),

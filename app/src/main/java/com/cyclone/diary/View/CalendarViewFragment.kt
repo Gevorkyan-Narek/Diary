@@ -7,24 +7,22 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.cyclone.diary.Model.Event
 import com.cyclone.diary.Presenter.EventModel
 import com.cyclone.diary.Presenter.Adapter
-import com.cyclone.diary.Presenter.RealmUtility
+import com.cyclone.diary.Presenter.eventSetting
 import com.cyclone.diary.R
 import com.jakewharton.threetenabp.AndroidThreeTen
 import com.kizitonwose.calendarview.model.*
 import com.kizitonwose.calendarview.ui.DayBinder
 import com.kizitonwose.calendarview.ui.ViewContainer
-import io.realm.Realm
+import io.realm.RealmResults
 import kotlinx.android.synthetic.main.day_view_resource.view.*
 import kotlinx.android.synthetic.main.fragment_calendar.*
 import kotlinx.android.synthetic.main.fragment_calendar.view.*
 import kotlinx.android.synthetic.main.fragment_calendar.view.time_recycler_view
-import kotlinx.android.synthetic.main.time_list.*
 import org.threeten.bp.*
 import org.threeten.bp.format.TextStyle
 import org.threeten.bp.temporal.WeekFields
@@ -37,14 +35,10 @@ class CalendarViewFragment : Fragment() {
         fun newInstance(): CalendarViewFragment = CalendarViewFragment()
     }
 
-    lateinit var realm: Realm
-    var dayCD: CalendarDay? = null
-//    var currentEvents: MutableList<Event>
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         AndroidThreeTen.init(context)
-        Realm.init(context)
-        realm = Realm.getInstance(RealmUtility.getDefaultConfig())
+        EventModel.realmInit(context!!)
     }
 
     override fun onCreateView(
@@ -55,9 +49,8 @@ class CalendarViewFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_calendar, container, false)
         val recyclerView = view.time_recycler_view
         recyclerView.layoutManager = LinearLayoutManager(context)
-        val currentEvents = mutableListOf<Event>()
         calendarMonthBinder(view)
-        calendarDayBinder(view, currentEvents, recyclerView)
+        calendarDayBinder(view, EventModel.getEvents(), recyclerView)
         view.selected_day.setOnClickListener { v ->
             view.calendarView.smoothScrollToDate(
                 LocalDate.now(),
@@ -75,35 +68,26 @@ class CalendarViewFragment : Fragment() {
                 if (view.toolbar.visibility == View.VISIBLE) View.GONE else View.VISIBLE
             view.collapse.rotation = if (view.collapse.rotation == 180f) 0f else 180f
         }
-        recyclerView.adapter = Adapter(currentEvents)
+        recyclerView.adapter = Adapter(eventSetting(recyclerView, dayCD))
         return view
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (data == null) return
-
-        val ft = fragmentManager?.beginTransaction()!!
-        ft.setReorderingAllowed(false).detach(this).attach(this)
-            .commitAllowingStateLoss()
-//        if (dayCD!!.date == LocalDate.now()) {
-//            currentEvents.addAll(events.filter { event ->
-//                event.starttime.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
-//                    .toString() == day.date.toString()
-//            })
-//
-//        }
+        eventSetting(time_recycler_view, dayCD)
     }
 
     private class DayViewContainer(view: View) : ViewContainer(view) {
         val tv = view.day_display
     }
 
+    var dayCD: CalendarDay? = null
+
     private fun calendarDayBinder(
         view: View,
-        currentEvents: MutableList<Event>,
+        events: RealmResults<Event>,
         recyclerView: RecyclerView
     ) {
-        val events = EventModel().getEvents(realm)
         var previousView: View? = null
         var previousDay: CalendarDay? = null
         val markedDays = mutableListOf<CalendarDay>()
@@ -113,30 +97,22 @@ class CalendarViewFragment : Fragment() {
             override fun bind(container: DayViewContainer, day: CalendarDay) {
                 // Day of month
                 container.tv.text = day.date.dayOfMonth.toString()
-                // Current day
-                if (!events.isEmpty()) {
-                    events.forEach { t: Event ->
-                        if (t.starttime.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
-                                .toString() == day.date.toString()
-                        ) {
-                            container.tv.setBackgroundResource(R.drawable.marked_day)
-                            markedDays.add(day)
-                        } else container.tv.background = null
-                    }
+                // Search days with events
+                val allEventsByDays = events.filter { event ->
+                    event.starttime.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+                        .toString() == day.date.toString()
                 }
-
+                if (allEventsByDays.isNotEmpty()) {
+                    container.tv.setBackgroundResource(R.drawable.marked_day)
+                    markedDays.add(day)
+                } else container.tv.background = null
+                // Current day events
                 if (day.date == LocalDate.now()) {
-                    currentEvents.clear()
                     view.selected_day.text = "${day.date.dayOfWeek.getDisplayName(
                         TextStyle.FULL,
                         Locale.ENGLISH
                     )} ${day.date.dayOfMonth}"
                     container.tv.setBackgroundResource(R.drawable.oval_gap)
-                    currentEvents.addAll(events.filter { event ->
-                        event.starttime.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
-                            .toString() == day.date.toString()
-                    })
-
                 }
                 // Day colors
                 container.tv.setTextColor(
@@ -145,25 +121,21 @@ class CalendarViewFragment : Fragment() {
                 )
                 // Click listener
                 container.tv.setOnClickListener { v ->
-                    currentEvents.clear()
-                    currentEvents.addAll(events.filter { event ->
-                        event.starttime.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
-                            .toString() == day.date.toString()
-                    })
-                    recyclerView.adapter?.notifyDataSetChanged()
+                    dayCD = day
+                    eventSetting(recyclerView, dayCD)
+
                     if (previousDay?.date == LocalDate.now()) {
                         previousView?.background?.setTintList(null)
                         previousView?.setBackgroundResource(R.drawable.oval_gap)
-                    } else if (markedDays.contains(previousDay)) previousView?.setBackgroundResource(
-                        R.drawable.marked_day
-                    )
+                    } else if (markedDays.contains(previousDay))
+                        previousView?.setBackgroundResource(R.drawable.marked_day)
                     else previousView?.setBackgroundResource(0)
 
                     previousView = v
                     previousDay = day
+
                     v.setBackgroundResource(R.drawable.oval_gap)
                     v.background.setTint(Color.RED)
-                    dayCD = day
                     view.selected_day.text = "${day.date.dayOfWeek.getDisplayName(
                         TextStyle.FULL,
                         Locale.ENGLISH

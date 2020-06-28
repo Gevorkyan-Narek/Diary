@@ -52,6 +52,10 @@ class Adapter(private var values: MutableList<Event>) : RecyclerView.Adapter<Ada
         return ViewHolder(itemView)
     }
 
+    fun update(values: MutableList<Event>) {
+        this.values = values
+        notifyDataSetChanged()
+    }
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.time.text = timeList[position].format(DateTimeFormatter.ofPattern("HH:mm"))
         val recyclerView = holder.itemsRecycler

@@ -6,12 +6,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.cyclone.diary.Model.Event
 import com.cyclone.diary.R
 import com.cyclone.diary.View.EventView
-import io.realm.Realm
+import kotlinx.android.synthetic.main.fragment_calendar.view.*
 import java.time.ZoneId
 
 class EventsAdapter(private val values: MutableList<Event>) :
@@ -47,17 +46,16 @@ class EventsAdapter(private val values: MutableList<Event>) :
             builder.setTitle("Confirmation")
             builder.setMessage("Do you want to delete this event?")
             builder.setPositiveButton("Delete") { dialog, which ->
-                val eventModel = EventModel()
-                Realm.init(v.context)
-                val realm = Realm.getInstance(RealmUtility.getDefaultConfig())
-                eventModel.deleteEvent(realm, values[position].id)
+                EventModel.deleteEvent(values[position].id)
                 values.removeAt(position)
-                val fragment =
-                    (v.context as FragmentActivity).supportFragmentManager.findFragmentByTag("Calendar")
-                val ft =
-                    (v.context as FragmentActivity).supportFragmentManager.beginTransaction()
-                ft.setReorderingAllowed(false).detach(fragment!!).attach(fragment)
-                    .commitAllowingStateLoss()
+//                (v.time_recycler_view.adapter as Adapter).update(values)
+//                eventSetting(v.time_recycler_view, C)
+//                val fragment =
+//                    (v.context as FragmentActivity).supportFragmentManager.findFragmentByTag("Calendar")
+//                val ft =
+//                    (v.context as FragmentActivity).supportFragmentManager.beginTransaction()
+//                ft.setReorderingAllowed(false).detach(fragment!!).attach(fragment)
+//                    .commitAllowingStateLoss()
                 dialog.dismiss()
             }
             builder.setNegativeButton("Cancel") { dialog, which ->
