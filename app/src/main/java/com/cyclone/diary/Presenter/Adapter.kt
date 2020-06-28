@@ -14,7 +14,7 @@ import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
-class Adapter(private val values: MutableList<Event>) : RecyclerView.Adapter<Adapter.ViewHolder>() {
+class Adapter(private var values: MutableList<Event>) : RecyclerView.Adapter<Adapter.ViewHolder>() {
 
     val timeList: List<LocalTime> = listOf(
         LocalTime.of(0, 0),
@@ -64,8 +64,6 @@ class Adapter(private val values: MutableList<Event>) : RecyclerView.Adapter<Ada
         }.toMutableList()
         recyclerView.adapter = EventsAdapter(events)
     }
-
-
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var time: TextView = itemView.findViewById(R.id.item_time)

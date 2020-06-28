@@ -1,6 +1,7 @@
 package com.cyclone.diary.Presenter
 
 import android.app.AlertDialog
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,7 +10,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.cyclone.diary.Model.Event
 import com.cyclone.diary.R
-import com.cyclone.diary.View.EventViewFragment
+import com.cyclone.diary.View.EventView
 import io.realm.Realm
 import java.time.ZoneId
 
@@ -32,25 +33,15 @@ class EventsAdapter(private val values: MutableList<Event>) :
                 .toLocalTime()} - ${values[position].endtime.toInstant()
                 .atZone(ZoneId.systemDefault())
                 .toLocalTime()}"
-        eventView(holder, position)
-        deleteEvent(holder, position)
-    }
-
-    private fun eventView(holder: ViewHolder, position: Int) {
         holder.itemView.setOnClickListener { v ->
-            val detailedview = EventViewFragment.newInstance(
-                values[position].id,
-                values[position].title,
-                values[position].starttime,
-                values[position].endtime,
-                values[position].description
-            )
-            (v.context as FragmentActivity).supportFragmentManager.beginTransaction()
-                .replace(R.id.calendar_fragment, detailedview).addToBackStack("").commit()
+            val intent = Intent(v.context, EventView::class.java)
+            intent.putExtra("id", values[position].id)
+            intent.putExtra("title", values[position].title)
+            intent.putExtra("starttime", values[position].starttime)
+            intent.putExtra("endtime", values[position].endtime)
+            intent.putExtra("description", values[position].description)
+            holder.itemView.context.startActivity(intent)
         }
-    }
-
-    private fun deleteEvent(holder: ViewHolder, position: Int) {
         holder.itemView.setOnLongClickListener { v ->
             val builder = AlertDialog.Builder(v.context)
             builder.setTitle("Confirmation")

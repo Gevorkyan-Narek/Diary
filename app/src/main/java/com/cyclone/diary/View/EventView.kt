@@ -1,14 +1,20 @@
 package com.cyclone.diary.View
 
+import android.app.Activity
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.content.Intent
 import android.os.Bundle
+import android.os.PersistableBundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import com.cyclone.diary.MainActivity
 import com.cyclone.diary.Model.Event
+import com.cyclone.diary.Presenter.Adapter
 import com.cyclone.diary.Presenter.EventModel
 import com.cyclone.diary.Presenter.RealmUtility
 import com.cyclone.diary.R
@@ -17,7 +23,7 @@ import kotlinx.android.synthetic.main.event_view.*
 import kotlinx.android.synthetic.main.event_view.view.*
 import kotlinx.android.synthetic.main.event_view.view.date
 import kotlinx.android.synthetic.main.event_view.view.time
-import kotlinx.android.synthetic.main.event_view.view.title
+import kotlinx.android.synthetic.main.time_list.*
 import java.sql.Timestamp
 import java.text.DateFormat
 import java.text.SimpleDateFormat
@@ -26,64 +32,42 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.math.min
 
-class EventViewFragment : Fragment() {
+class EventView : AppCompatActivity() {
+
     var eventModel = EventModel()
-
-    companion object {
-        fun newInstance(
-            id: Int,
-            title: String,
-            starttime: Date,
-            endtime: Date,
-            description: String
-        ): EventViewFragment {
-            val args = Bundle()
-            args.putInt("id", id)
-            args.putString("title", title)
-            args.putSerializable("starttime", starttime)
-            args.putSerializable("endtime", endtime)
-            args.putString("description", description)
-            args.putBoolean("update", true)
-            val fragment = EventViewFragment()
-            fragment.arguments = args
-            return fragment
-        }
-    }
-
     private val cStart = Calendar.getInstance()
     private val cEnd = Calendar.getInstance()
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.event_view, container, false)
+    var arguments: Bundle? = null
 
-        Realm.init(context)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.event_view)
+
+        Realm.init(this)
         val realm = Realm.getInstance(RealmUtility.getDefaultConfig())
+        arguments = intent.extras
 
         if (arguments != null) {
-            view.title.setText(arguments?.getString("title"))
+            event_title.setText(arguments?.getString("title"))
             val time = arguments?.getSerializable("starttime") as Date
             val endtime = arguments?.getSerializable("endtime") as Date
             cStart.time = time
             cEnd.time = endtime
-            view.time.text = SimpleDateFormat("HH:mm").format(time)
-            view.endtime.text = SimpleDateFormat("HH:mm").format(endtime)
-            view.date.setText(SimpleDateFormat("yyyy-MM-dd").format(time))
-            view.description.setText(arguments?.getString("description"))
+            this.time.text = SimpleDateFormat("HH:mm").format(time)
+            this.endtime.text = SimpleDateFormat("HH:mm").format(endtime)
+            date.setText(SimpleDateFormat("yyyy-MM-dd").format(time))
+            description.setText(arguments?.getString("description"))
         }
 
-        datePicker(view)
-        timePicker(view)
-        buttonListener(view, realm)
-        return view
+        datePicker()
+        timePicker()
+        buttonListener(realm)
     }
 
-    private fun datePicker(view: View) {
-        view.date_picker.setOnClickListener {
+    private fun datePicker() {
+        date_picker.setOnClickListener {
             val dpd = DatePickerDialog(
-                view.context,
+                this,
                 DatePickerDialog.OnDateSetListener { view, year, month, dayOfMonth ->
                     cStart.set(Calendar.YEAR, year)
                     cStart.set(Calendar.MONTH, month)
@@ -99,15 +83,15 @@ class EventViewFragment : Fragment() {
         }
     }
 
-    private fun timePicker(view: View) {
-        view.time.setOnClickListener {
+    private fun timePicker() {
+        time.setOnClickListener {
             val tpd = TimePickerDialog.OnTimeSetListener { view, hourOfDay, minute ->
                 cStart.set(Calendar.HOUR_OF_DAY, hourOfDay)
                 cStart.set(Calendar.MINUTE, minute)
                 time.text = SimpleDateFormat("HH:mm", Locale.getDefault()).format(cStart.time)
             }
             TimePickerDialog(
-                context,
+                this,
                 tpd,
                 cStart.get(Calendar.HOUR_OF_DAY),
                 cStart.get(Calendar.MINUTE),
@@ -115,14 +99,14 @@ class EventViewFragment : Fragment() {
             ).show()
         }
 
-        view.endtime.setOnClickListener {
+        endtime.setOnClickListener {
             val tpd = TimePickerDialog.OnTimeSetListener { view, hourOfDay, minute ->
                 cEnd.set(Calendar.HOUR_OF_DAY, hourOfDay)
                 cEnd.set(Calendar.MINUTE, minute)
                 endtime.text = SimpleDateFormat("HH:mm", Locale.getDefault()).format(cEnd.time)
             }
             TimePickerDialog(
-                context,
+                this,
                 tpd,
                 cEnd.get(Calendar.HOUR_OF_DAY),
                 cEnd.get(Calendar.MINUTE),
@@ -131,9 +115,9 @@ class EventViewFragment : Fragment() {
         }
     }
 
-    private fun buttonListener(view: View, realm: Realm) {
+    private fun buttonListener(realm: Realm) {
         if (arguments == null) {
-            view.add.setOnClickListener {
+            add.setOnClickListener {
                 val dateStart = LocalDateTime.of(
                     cStart.get(Calendar.YEAR),
                     cStart.get(Calendar.MONTH) + 1,
@@ -153,7 +137,7 @@ class EventViewFragment : Fragment() {
                     if (eventModel.getEvents(realm).count() <= 0) {
                         Event(
                             0,
-                            title.text.toString(),
+                            event_title.text.toString(),
                             Date.from(dateStart.atZone(ZoneId.systemDefault()).toInstant()),
                             Date.from(dateEnd.atZone(ZoneId.systemDefault()).toInstant()),
                             description.text.toString()
@@ -161,7 +145,7 @@ class EventViewFragment : Fragment() {
                     } else {
                         Event(
                             eventModel.getLastEvent(realm).id + 1,
-                            title.text.toString(),
+                            event_title.text.toString(),
                             Date.from(dateStart.atZone(ZoneId.systemDefault()).toInstant()),
                             Date.from(dateEnd.atZone(ZoneId.systemDefault()).toInstant()),
                             description.text.toString()
@@ -169,15 +153,16 @@ class EventViewFragment : Fragment() {
                     }
                 )
                 if (key) {
-                    Toast.makeText(context, "Added", Toast.LENGTH_LONG).show()
-                    fragmentManager?.popBackStack()
+                    Toast.makeText(this, "Added", Toast.LENGTH_LONG).show()
+                    setResult(Activity.RESULT_OK, Intent().putExtra("res", "Added"))
+                    finish()
                 } else {
-                    Toast.makeText(context, "Error", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, "Error", Toast.LENGTH_LONG).show()
                 }
             }
         } else {
-            view.add.text = "Update"
-            view.add.setOnClickListener {
+            add.text = "Update"
+            add.setOnClickListener {
                 val dateStart = LocalDateTime.of(
                     cStart.get(Calendar.YEAR),
                     cStart.get(Calendar.MONTH) + 1,
@@ -196,17 +181,17 @@ class EventViewFragment : Fragment() {
                     realm,
                     Event(
                         arguments!!.getInt("id"),
-                        title.text.toString(),
+                        event_title.text.toString(),
                         Date.from(dateStart.atZone(ZoneId.systemDefault()).toInstant()),
                         Date.from(dateEnd.atZone(ZoneId.systemDefault()).toInstant()),
                         description.text.toString()
                     )
                 )
                 if (key) {
-                    Toast.makeText(context, "Updated", Toast.LENGTH_LONG).show()
-                    fragmentManager?.popBackStack()
+                    Toast.makeText(this, "Updated", Toast.LENGTH_LONG).show()
+                    finish()
                 } else {
-                    Toast.makeText(context, "Error", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, "Error", Toast.LENGTH_LONG).show()
                 }
             }
         }

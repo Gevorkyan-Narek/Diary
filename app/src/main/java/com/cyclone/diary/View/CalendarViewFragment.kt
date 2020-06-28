@@ -1,15 +1,13 @@
 package com.cyclone.diary.View
 
+import android.content.Intent
 import android.graphics.Color
-import android.opengl.Visibility
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
-import android.widget.Toast
-import android.widget.Toolbar
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.cyclone.diary.Model.Event
@@ -23,13 +21,13 @@ import com.kizitonwose.calendarview.ui.DayBinder
 import com.kizitonwose.calendarview.ui.ViewContainer
 import io.realm.Realm
 import kotlinx.android.synthetic.main.day_view_resource.view.*
+import kotlinx.android.synthetic.main.fragment_calendar.*
 import kotlinx.android.synthetic.main.fragment_calendar.view.*
+import kotlinx.android.synthetic.main.fragment_calendar.view.time_recycler_view
+import kotlinx.android.synthetic.main.time_list.*
 import org.threeten.bp.*
 import org.threeten.bp.format.TextStyle
 import org.threeten.bp.temporal.WeekFields
-import java.text.SimpleDateFormat
-import java.time.Instant
-import java.time.LocalTime
 import java.time.ZoneId
 import java.util.*
 
@@ -40,7 +38,8 @@ class CalendarViewFragment : Fragment() {
     }
 
     lateinit var realm: Realm
-
+    var dayCD: CalendarDay? = null
+//    var currentEvents: MutableList<Event>
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         AndroidThreeTen.init(context)
@@ -54,33 +53,56 @@ class CalendarViewFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_calendar, container, false)
-
         val recyclerView = view.time_recycler_view
         recyclerView.layoutManager = LinearLayoutManager(context)
         val currentEvents = mutableListOf<Event>()
         calendarMonthBinder(view)
         calendarDayBinder(view, currentEvents, recyclerView)
-        view.selected_day.setOnClickListener { v -> view.calendarView.smoothScrollToDate(LocalDate.now(), DayOwner.THIS_MONTH) }
+        view.selected_day.setOnClickListener { v ->
+            view.calendarView.smoothScrollToDate(
+                LocalDate.now(),
+                DayOwner.THIS_MONTH
+            )
+        }
 
         view.add_event.setOnClickListener { v ->
-            requireActivity().supportFragmentManager.beginTransaction()
-                .replace(R.id.calendar_fragment, EventViewFragment()).addToBackStack("Calendar")
-                .commit()
+            val intent = Intent(v.context, EventView::class.java)
+            startActivityForResult(intent, 1)
         }
 
         view.collapse.setOnClickListener { v ->
-            view.toolbar.visibility = if(view.toolbar.visibility == View.VISIBLE) View.GONE else View.VISIBLE
-            view.collapse.rotation = if(view.collapse.rotation == 180f) 0f else 180f
+            view.toolbar.visibility =
+                if (view.toolbar.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+            view.collapse.rotation = if (view.collapse.rotation == 180f) 0f else 180f
         }
         recyclerView.adapter = Adapter(currentEvents)
         return view
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (data == null) return
+
+        val ft = fragmentManager?.beginTransaction()!!
+        ft.setReorderingAllowed(false).detach(this).attach(this)
+            .commitAllowingStateLoss()
+//        if (dayCD!!.date == LocalDate.now()) {
+//            currentEvents.addAll(events.filter { event ->
+//                event.starttime.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+//                    .toString() == day.date.toString()
+//            })
+//
+//        }
     }
 
     private class DayViewContainer(view: View) : ViewContainer(view) {
         val tv = view.day_display
     }
 
-    private fun calendarDayBinder(view: View, currentEvents: MutableList<Event>, recyclerView: RecyclerView) {
+    private fun calendarDayBinder(
+        view: View,
+        currentEvents: MutableList<Event>,
+        recyclerView: RecyclerView
+    ) {
         val events = EventModel().getEvents(realm)
         var previousView: View? = null
         var previousDay: CalendarDay? = null
@@ -141,7 +163,7 @@ class CalendarViewFragment : Fragment() {
                     previousDay = day
                     v.setBackgroundResource(R.drawable.oval_gap)
                     v.background.setTint(Color.RED)
-
+                    dayCD = day
                     view.selected_day.text = "${day.date.dayOfWeek.getDisplayName(
                         TextStyle.FULL,
                         Locale.ENGLISH
@@ -162,11 +184,11 @@ class CalendarViewFragment : Fragment() {
         )
 
         view.calendarView.monthScrollListener = { calendarMonth ->
-                view.name_month.text =
-                    calendarMonth.yearMonth.month.getDisplayName(
-                        TextStyle.FULL,
-                        Locale.ENGLISH
-                    ) + " " + calendarMonth.year
+            view.name_month.text =
+                calendarMonth.yearMonth.month.getDisplayName(
+                    TextStyle.FULL,
+                    Locale.ENGLISH
+                ) + " " + calendarMonth.year
         }
         view.calendarView.scrollToMonth(currentMonth)
         view.calendarView.inDateStyle = InDateStyle.ALL_MONTHS
