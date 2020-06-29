@@ -3,9 +3,7 @@ package com.cyclone.diary.Presenter
 import android.content.Context
 import com.cyclone.diary.Model.Event
 import io.realm.Realm
-import io.realm.RealmConfiguration
 import io.realm.RealmResults
-import java.lang.Exception
 
 class EventModel {
 

@@ -5,32 +5,16 @@ import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.Intent
 import android.os.Bundle
-import android.os.PersistableBundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
-import com.cyclone.diary.MainActivity
 import com.cyclone.diary.Model.Event
-import com.cyclone.diary.Presenter.Adapter
 import com.cyclone.diary.Presenter.EventModel
-import com.cyclone.diary.Presenter.RealmUtility
 import com.cyclone.diary.R
-import io.realm.Realm
 import kotlinx.android.synthetic.main.event_view.*
-import kotlinx.android.synthetic.main.event_view.view.*
-import kotlinx.android.synthetic.main.event_view.view.date
-import kotlinx.android.synthetic.main.event_view.view.time
-import kotlinx.android.synthetic.main.time_list.*
-import java.sql.Timestamp
-import java.text.DateFormat
 import java.text.SimpleDateFormat
-import java.time.*
-import java.time.format.DateTimeFormatter
+import java.time.LocalDateTime
+import java.time.ZoneId
 import java.util.*
-import kotlin.math.min
 
 class EventView : AppCompatActivity() {
 

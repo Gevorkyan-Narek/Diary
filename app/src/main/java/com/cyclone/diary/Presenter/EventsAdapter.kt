@@ -6,11 +6,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.cyclone.diary.Model.Event
 import com.cyclone.diary.R
 import com.cyclone.diary.View.EventView
-import kotlinx.android.synthetic.main.fragment_calendar.view.*
 import java.time.ZoneId
 
 class EventsAdapter(private val values: MutableList<Event>) :
@@ -48,24 +48,21 @@ class EventsAdapter(private val values: MutableList<Event>) :
             builder.setPositiveButton("Delete") { dialog, which ->
                 EventModel.deleteEvent(values[position].id)
                 values.removeAt(position)
-//                (v.time_recycler_view.adapter as Adapter).update(values)
-//                eventSetting(v.time_recycler_view, C)
-//                val fragment =
-//                    (v.context as FragmentActivity).supportFragmentManager.findFragmentByTag("Calendar")
-//                val ft =
-//                    (v.context as FragmentActivity).supportFragmentManager.beginTransaction()
-//                ft.setReorderingAllowed(false).detach(fragment!!).attach(fragment)
-//                    .commitAllowingStateLoss()
+                val fragment =
+                    (v.context as FragmentActivity).supportFragmentManager.findFragmentByTag("Calendar")
+                val ft =
+                    (v.context as FragmentActivity).supportFragmentManager.beginTransaction()
+                ft.setReorderingAllowed(false).detach(fragment!!).attach(fragment)
+                    .commitAllowingStateLoss()
                 dialog.dismiss()
             }
             builder.setNegativeButton("Cancel") { dialog, which ->
                 dialog.dismiss()
             }
-            builder.create().show()
+            builder.show()
             true
         }
     }
-
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var title: TextView = itemView.findViewById(R.id.item_title)
         var fulltime: TextView = itemView.findViewById(R.id.fulltime)

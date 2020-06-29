@@ -10,8 +10,8 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.cyclone.diary.Model.Event
-import com.cyclone.diary.Presenter.EventModel
 import com.cyclone.diary.Presenter.Adapter
+import com.cyclone.diary.Presenter.EventModel
 import com.cyclone.diary.Presenter.eventSetting
 import com.cyclone.diary.R
 import com.jakewharton.threetenabp.AndroidThreeTen
@@ -22,8 +22,8 @@ import io.realm.RealmResults
 import kotlinx.android.synthetic.main.day_view_resource.view.*
 import kotlinx.android.synthetic.main.fragment_calendar.*
 import kotlinx.android.synthetic.main.fragment_calendar.view.*
-import kotlinx.android.synthetic.main.fragment_calendar.view.time_recycler_view
-import org.threeten.bp.*
+import org.threeten.bp.LocalDate
+import org.threeten.bp.YearMonth
 import org.threeten.bp.format.TextStyle
 import org.threeten.bp.temporal.WeekFields
 import java.time.ZoneId
@@ -32,7 +32,8 @@ import java.util.*
 class CalendarViewFragment : Fragment() {
 
     companion object {
-        fun newInstance(): CalendarViewFragment = CalendarViewFragment()
+        private val instance = CalendarViewFragment()
+        fun newInstance(): CalendarViewFragment = instance
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -75,6 +76,7 @@ class CalendarViewFragment : Fragment() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (data == null) return
         eventSetting(time_recycler_view, dayCD)
+        calendarDayBinder(view!!, EventModel.getEvents(), time_recycler_view)
     }
 
     private class DayViewContainer(view: View) : ViewContainer(view) {
@@ -140,6 +142,9 @@ class CalendarViewFragment : Fragment() {
                         TextStyle.FULL,
                         Locale.ENGLISH
                     )} ${day.date.dayOfMonth}"
+                }
+                if(dayCD == day) {
+                    container.tv.performClick()
                 }
             }
         }

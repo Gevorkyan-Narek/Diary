@@ -1,11 +1,8 @@
 package com.cyclone.diary.Model
 
 import io.realm.RealmObject
-import io.realm.Realm.*
 import io.realm.annotations.PrimaryKey
-import java.sql.Timestamp
 import java.time.Instant
-import java.time.LocalTime
 import java.util.*
 
 open class Event(

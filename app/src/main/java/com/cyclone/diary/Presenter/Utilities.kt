@@ -1,6 +1,5 @@
 package com.cyclone.diary.Presenter
 
-import android.content.Context
 import androidx.recyclerview.widget.RecyclerView
 import com.cyclone.diary.Model.Event
 import com.kizitonwose.calendarview.model.CalendarDay
