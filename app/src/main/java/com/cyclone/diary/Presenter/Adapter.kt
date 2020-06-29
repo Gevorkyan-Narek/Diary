@@ -40,13 +40,11 @@ class Adapter(private var values: MutableList<Event>) : RecyclerView.Adapter<Ada
         LocalTime.of(22, 0),
         LocalTime.of(23, 0)
     )
-    lateinit var parent: ViewGroup
     override fun getItemCount(): Int = timeList.size
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val itemView =
             LayoutInflater.from(parent.context).inflate(R.layout.time_list, parent, false)
-        this.parent = parent
         return ViewHolder(itemView)
     }
 

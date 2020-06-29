@@ -1,5 +1,6 @@
 package com.cyclone.diary.View
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
@@ -64,8 +65,8 @@ class CalendarViewFragment : Fragment(), View.OnClickListener {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (data == null) return
-//        eventSetting(time_recycler_view, dayCD)
         calendarDayBinder(view!!, EventModel.getEvents(), time_recycler_view)
+        eventSetting(time_recycler_view, dayCD)
     }
 
     private class DayViewContainer(view: View) : ViewContainer(view) {
@@ -74,7 +75,7 @@ class CalendarViewFragment : Fragment(), View.OnClickListener {
 
     private var dayCD: CalendarDay? = null
 
-    fun calendarDayBinder(
+    private fun calendarDayBinder(
         view: View,
         events: RealmResults<Event>,
         recyclerView: RecyclerView
@@ -88,28 +89,32 @@ class CalendarViewFragment : Fragment(), View.OnClickListener {
             override fun bind(container: DayViewContainer, day: CalendarDay) {
                 // Day of month
                 container.tv.text = day.date.dayOfMonth.toString()
-                // Search days with events
-                val allEventsByDay = events.filter { event ->
-                    event.starttime.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
-                        .toString() == day.date.toString()
-                }
-                if (allEventsByDay.isNotEmpty()) {
-                    container.tv.setBackgroundResource(R.drawable.marked_day)
-                    markedDays.add(day)
-                } else container.tv.background = null
-                // Current day events
-                if (day.date == LocalDate.now()) {
-                    view.selected_day.text = "${day.date.dayOfWeek.getDisplayName(
-                        TextStyle.FULL,
-                        Locale.ENGLISH
-                    )} ${day.date.dayOfMonth}"
-                    container.tv.setBackgroundResource(R.drawable.oval_gap)
-                }
                 // Day colors
                 container.tv.setTextColor(
                     if (day.owner == DayOwner.THIS_MONTH) Color.BLACK
                     else Color.rgb(236, 236, 236)
                 )
+                // Search days with events
+                val checkEventsByDay = events.find { event ->
+                    event.starttime.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+                        .toString() == day.date.toString()
+                }
+                if (checkEventsByDay != null) {
+                    container.tv.setBackgroundResource(R.drawable.marked_day)
+                    markedDays.add(day)
+                } else container.tv.background = null
+                // Current day events
+                if (day.date == LocalDate.now()) {
+                    if (dayCD == null) {
+                        selected_day.setText(
+                            "${day.date.dayOfWeek.getDisplayName(
+                                TextStyle.FULL,
+                                Locale.ENGLISH
+                            )} ${day.date.dayOfMonth}"
+                        )
+                    }
+                    container.tv.setBackgroundResource(R.drawable.oval_gap)
+                }
                 // Click listener
                 container.tv.setOnClickListener { v ->
                     dayCD = day
@@ -127,14 +132,14 @@ class CalendarViewFragment : Fragment(), View.OnClickListener {
 
                     v.setBackgroundResource(R.drawable.oval_gap)
                     v.background.setTint(Color.RED)
-                    view.selected_day.text = "${day.date.dayOfWeek.getDisplayName(
-                        TextStyle.FULL,
-                        Locale.ENGLISH
-                    )} ${day.date.dayOfMonth}"
+                    selected_day.setText(
+                        "${day.date.dayOfWeek.getDisplayName(
+                            TextStyle.FULL,
+                            Locale.ENGLISH
+                        )} ${day.date.dayOfMonth}"
+                    )
                 }
-                if(dayCD == day) {
-                    container.tv.performClick()
-                }
+                if (dayCD?.date == day.date) container.tv.performClick()
             }
         }
     }
@@ -165,12 +170,12 @@ class CalendarViewFragment : Fragment(), View.OnClickListener {
     override fun onClick(v: View?) {
         when (v?.id) {
             R.id.selected_day -> {
-                v.calendarView.smoothScrollToDate(
+                view?.calendarView?.smoothScrollToDate(
                     LocalDate.now(),
                     DayOwner.THIS_MONTH
                 )
             }
-            R.id.add_event ->  {
+            R.id.add_event -> {
                 val intent = Intent(v.context, EventView::class.java)
                 startActivityForResult(intent, 1)
             }
@@ -180,6 +185,23 @@ class CalendarViewFragment : Fragment(), View.OnClickListener {
                 v.collapse.rotation = if (v.collapse.rotation == 180f) 0f else 180f
             }
         }
+    }
+
+    fun deleteDialog(values: MutableList<Event>, position: Int) {
+        val builder = AlertDialog.Builder(this.context)
+        builder.setTitle("Confirmation")
+        builder.setMessage("Do you want to delete this event?")
+        builder.setPositiveButton("Delete") { dialog, which ->
+            EventModel.deleteEvent(values[position].id)
+            values.removeAt(position)
+            calendarDayBinder(view!!, EventModel.getEvents(), time_recycler_view)
+            eventSetting(time_recycler_view, dayCD)
+            dialog.dismiss()
+        }
+        builder.setNegativeButton("Cancel") { dialog, which ->
+            dialog.cancel()
+        }
+        builder.show()
     }
 }
 

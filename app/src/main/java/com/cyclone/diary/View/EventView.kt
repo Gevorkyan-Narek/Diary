@@ -8,13 +8,9 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.RecyclerView
 import com.cyclone.diary.Model.Event
-import com.cyclone.diary.Presenter.Adapter
 import com.cyclone.diary.Presenter.EventModel
-import com.cyclone.diary.Presenter.eventSetting
 import com.cyclone.diary.R
-import com.kizitonwose.calendarview.model.CalendarDay
 import kotlinx.android.synthetic.main.event_view.*
 import kotlinx.android.synthetic.main.fragment_calendar.*
 import java.text.SimpleDateFormat
@@ -137,18 +133,37 @@ class EventView : AppCompatActivity(), View.OnClickListener {
             )
         }
         val key =
-            if (arguments == null) {
-                setResult(Activity.RESULT_OK, Intent().putExtra("res", "Added"))
-                EventModel.addEvent(event)
-            } else {
-                event.id = arguments!!.getInt("id")
-                CalendarViewFragment.instance.time_recycler_view.adapter?.notifyDataSetChanged()
-                EventModel.editEvent(event)
+            when {
+                event_title.text.isBlank() -> {
+                    Toast.makeText(v?.context, "Write a title", Toast.LENGTH_SHORT).show()
+                    false
+                }
+                dateStart == null || dateEnd == null -> {
+                    Toast.makeText(v?.context, "Choose time", Toast.LENGTH_SHORT).show()
+                    false
+                }
+                dateStart > dateEnd -> {
+                    Toast.makeText(v?.context, "Time of start can't be more than time of end", Toast.LENGTH_SHORT).show()
+                    false
+                }
+                date.text.isBlank() -> {
+                    Toast.makeText(v?.context, "Choose date", Toast.LENGTH_SHORT).show()
+                    false
+                }
+                arguments == null -> {
+                    setResult(Activity.RESULT_OK, Intent().putExtra("res", "Added"))
+                    val res = EventModel.addEvent(event)
+                    if(!res) Toast.makeText(v?.context, "Error", Toast.LENGTH_SHORT).show()
+                    res
+                }
+                else -> {
+                    event.id = arguments!!.getInt("id")
+                    CalendarViewFragment.instance.time_recycler_view.adapter?.notifyDataSetChanged()
+                    val res = EventModel.editEvent(event)
+                    if(!res) Toast.makeText(v?.context, "Error", Toast.LENGTH_SHORT).show()
+                    res
+                }
             }
-        if (key) {
-            finish()
-        } else {
-            Toast.makeText(this, "Error", Toast.LENGTH_LONG).show()
-        }
+        if (key) finish()
     }
 }

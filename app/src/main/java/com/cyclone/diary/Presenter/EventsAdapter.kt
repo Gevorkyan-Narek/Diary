@@ -1,28 +1,22 @@
 package com.cyclone.diary.Presenter
 
-import android.app.AlertDialog
 import android.content.Intent
-import android.os.AsyncTask
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.cyclone.diary.Model.Event
 import com.cyclone.diary.R
 import com.cyclone.diary.View.CalendarViewFragment
 import com.cyclone.diary.View.EventView
-import kotlinx.android.synthetic.main.fragment_calendar.*
 import java.time.ZoneId
 
 class EventsAdapter(private val values: MutableList<Event>) :
     RecyclerView.Adapter<EventsAdapter.ViewHolder>() {
-    lateinit var parent: ViewGroup
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val itemView =
             LayoutInflater.from(parent.context).inflate(R.layout.item_view_list, parent, false)
-        this.parent = parent
         return ViewHolder(itemView)
     }
 
@@ -45,24 +39,7 @@ class EventsAdapter(private val values: MutableList<Event>) :
             holder.itemView.context.startActivity(intent)
         }
         holder.itemView.setOnLongClickListener { v ->
-            val builder = AlertDialog.Builder(v.context)
-            builder.setTitle("Confirmation")
-            builder.setMessage("Do you want to delete this event?")
-            builder.setPositiveButton("Delete") { dialog, which ->
-                EventModel.deleteEvent(values[position].id)
-                values.removeAt(position)
-                val fragment =
-                    (v.context as FragmentActivity).supportFragmentManager.findFragmentByTag("Calendar")
-                val ft =
-                    (v.context as FragmentActivity).supportFragmentManager.beginTransaction()
-                ft.setReorderingAllowed(false).detach(fragment!!).attach(fragment)
-                    .commitAllowingStateLoss()
-                dialog.dismiss()
-            }
-            builder.setNegativeButton("Cancel") { dialog, which ->
-                dialog.dismiss()
-            }
-            builder.show()
+            CalendarViewFragment.instance.deleteDialog(values, position)
             true
         }
     }
