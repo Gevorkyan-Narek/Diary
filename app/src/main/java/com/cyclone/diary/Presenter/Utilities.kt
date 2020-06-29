@@ -57,11 +57,7 @@ class Utilities {
         Toast.makeText(context, "Write a title", Toast.LENGTH_SHORT).show()
                     false
                 }
-                timeStart == null || timeEnd == null -> {
-        Toast.makeText(context, "Choose time", Toast.LENGTH_SHORT).show()
-                    false
-                }
-                timeStart > timeEnd -> {
+                timeStart!!.isAfter(timeEnd) -> {
         Toast.makeText(context, "Time of start can't be more than time of end", Toast.LENGTH_SHORT).show()
                     false
                 }
