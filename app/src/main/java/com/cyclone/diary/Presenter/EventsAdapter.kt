@@ -2,6 +2,7 @@ package com.cyclone.diary.Presenter
 
 import android.app.AlertDialog
 import android.content.Intent
+import android.os.AsyncTask
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,7 +11,9 @@ import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.cyclone.diary.Model.Event
 import com.cyclone.diary.R
+import com.cyclone.diary.View.CalendarViewFragment
 import com.cyclone.diary.View.EventView
+import kotlinx.android.synthetic.main.fragment_calendar.*
 import java.time.ZoneId
 
 class EventsAdapter(private val values: MutableList<Event>) :

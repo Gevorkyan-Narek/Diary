@@ -29,10 +29,10 @@ import org.threeten.bp.temporal.WeekFields
 import java.time.ZoneId
 import java.util.*
 
-class CalendarViewFragment : Fragment() {
+class CalendarViewFragment : Fragment(), View.OnClickListener {
 
     companion object {
-        private val instance = CalendarViewFragment()
+        val instance = CalendarViewFragment()
         fun newInstance(): CalendarViewFragment = instance
     }
 
@@ -50,32 +50,21 @@ class CalendarViewFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_calendar, container, false)
         val recyclerView = view.time_recycler_view
         recyclerView.layoutManager = LinearLayoutManager(context)
+
         calendarMonthBinder(view)
         calendarDayBinder(view, EventModel.getEvents(), recyclerView)
-        view.selected_day.setOnClickListener { v ->
-            view.calendarView.smoothScrollToDate(
-                LocalDate.now(),
-                DayOwner.THIS_MONTH
-            )
-        }
 
-        view.add_event.setOnClickListener { v ->
-            val intent = Intent(v.context, EventView::class.java)
-            startActivityForResult(intent, 1)
-        }
+        view.selected_day.setOnClickListener(this)
+        view.add_event.setOnClickListener(this)
+        view.collapse.setOnClickListener(this)
 
-        view.collapse.setOnClickListener { v ->
-            view.toolbar.visibility =
-                if (view.toolbar.visibility == View.VISIBLE) View.GONE else View.VISIBLE
-            view.collapse.rotation = if (view.collapse.rotation == 180f) 0f else 180f
-        }
         recyclerView.adapter = Adapter(eventSetting(recyclerView, dayCD))
         return view
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (data == null) return
-        eventSetting(time_recycler_view, dayCD)
+//        eventSetting(time_recycler_view, dayCD)
         calendarDayBinder(view!!, EventModel.getEvents(), time_recycler_view)
     }
 
@@ -83,9 +72,9 @@ class CalendarViewFragment : Fragment() {
         val tv = view.day_display
     }
 
-    var dayCD: CalendarDay? = null
+    private var dayCD: CalendarDay? = null
 
-    private fun calendarDayBinder(
+    fun calendarDayBinder(
         view: View,
         events: RealmResults<Event>,
         recyclerView: RecyclerView
@@ -100,11 +89,11 @@ class CalendarViewFragment : Fragment() {
                 // Day of month
                 container.tv.text = day.date.dayOfMonth.toString()
                 // Search days with events
-                val allEventsByDays = events.filter { event ->
+                val allEventsByDay = events.filter { event ->
                     event.starttime.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
                         .toString() == day.date.toString()
                 }
-                if (allEventsByDays.isNotEmpty()) {
+                if (allEventsByDay.isNotEmpty()) {
                     container.tv.setBackgroundResource(R.drawable.marked_day)
                     markedDays.add(day)
                 } else container.tv.background = null
@@ -171,6 +160,26 @@ class CalendarViewFragment : Fragment() {
         view.calendarView.inDateStyle = InDateStyle.ALL_MONTHS
         view.calendarView.outDateStyle = OutDateStyle.END_OF_ROW
         view.calendarView.scrollMode = ScrollMode.PAGED
+    }
+
+    override fun onClick(v: View?) {
+        when (v?.id) {
+            R.id.selected_day -> {
+                v.calendarView.smoothScrollToDate(
+                    LocalDate.now(),
+                    DayOwner.THIS_MONTH
+                )
+            }
+            R.id.add_event ->  {
+                val intent = Intent(v.context, EventView::class.java)
+                startActivityForResult(intent, 1)
+            }
+            R.id.collapse -> {
+                view?.toolbar?.visibility =
+                    if (view?.toolbar?.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+                v.collapse.rotation = if (v.collapse.rotation == 180f) 0f else 180f
+            }
+        }
     }
 }
 
