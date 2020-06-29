@@ -9,7 +9,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.cyclone.diary.Model.Event
 import com.cyclone.diary.R
 import java.time.LocalTime
-import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 class Adapter(private var values: MutableList<Event>) : RecyclerView.Adapter<Adapter.ViewHolder>() {
@@ -57,10 +56,7 @@ class Adapter(private var values: MutableList<Event>) : RecyclerView.Adapter<Ada
         val recyclerView = holder.itemsRecycler
         recyclerView.layoutManager = LinearLayoutManager(holder.itemView.context)
         val events = values.filter { event ->
-            timeList[position].hour >= event.starttime.toInstant().atZone(ZoneId.systemDefault())
-                .toLocalTime().hour &&
-                    timeList[position].hour <= event.endtime.toInstant()
-                .atZone(ZoneId.systemDefault()).toLocalTime().hour
+            Utilities.checkTime(timeList[position], event.starttime, event.endtime)
         }.toMutableList()
         recyclerView.adapter = EventsAdapter(events)
     }

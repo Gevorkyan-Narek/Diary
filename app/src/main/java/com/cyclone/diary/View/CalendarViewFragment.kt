@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.cyclone.diary.Model.Event
 import com.cyclone.diary.Presenter.Adapter
 import com.cyclone.diary.Presenter.EventModel
-import com.cyclone.diary.Presenter.eventSetting
+import com.cyclone.diary.Presenter.Utilities
 import com.cyclone.diary.R
 import com.jakewharton.threetenabp.AndroidThreeTen
 import com.kizitonwose.calendarview.model.*
@@ -27,7 +27,6 @@ import org.threeten.bp.LocalDate
 import org.threeten.bp.YearMonth
 import org.threeten.bp.format.TextStyle
 import org.threeten.bp.temporal.WeekFields
-import java.time.ZoneId
 import java.util.*
 
 class CalendarViewFragment : Fragment(), View.OnClickListener {
@@ -59,14 +58,14 @@ class CalendarViewFragment : Fragment(), View.OnClickListener {
         view.add_event.setOnClickListener(this)
         view.collapse.setOnClickListener(this)
 
-        recyclerView.adapter = Adapter(eventSetting(recyclerView, dayCD))
+        recyclerView.adapter = Adapter(Utilities.eventSetting(recyclerView, dayCD))
         return view
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (data == null) return
         calendarDayBinder(view!!, EventModel.getEvents(), time_recycler_view)
-        eventSetting(time_recycler_view, dayCD)
+        Utilities.eventSetting(time_recycler_view, dayCD)
     }
 
     private class DayViewContainer(view: View) : ViewContainer(view) {
@@ -95,9 +94,8 @@ class CalendarViewFragment : Fragment(), View.OnClickListener {
                     else Color.rgb(236, 236, 236)
                 )
                 // Search days with events
-                val checkEventsByDay = events.find { event ->
-                    event.starttime.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
-                        .toString() == day.date.toString()
+                val checkEventsByDay = events.find {
+                        event -> Utilities.comparisonDates(event.starttime, day.date)
                 }
                 if (checkEventsByDay != null) {
                     container.tv.setBackgroundResource(R.drawable.marked_day)
@@ -118,7 +116,7 @@ class CalendarViewFragment : Fragment(), View.OnClickListener {
                 // Click listener
                 container.tv.setOnClickListener { v ->
                     dayCD = day
-                    eventSetting(recyclerView, dayCD)
+                    Utilities.eventSetting(recyclerView, dayCD)
 
                     if (previousDay?.date == LocalDate.now()) {
                         previousView?.background?.setTintList(null)
@@ -195,7 +193,7 @@ class CalendarViewFragment : Fragment(), View.OnClickListener {
             EventModel.deleteEvent(values[position].id)
             values.removeAt(position)
             calendarDayBinder(view!!, EventModel.getEvents(), time_recycler_view)
-            eventSetting(time_recycler_view, dayCD)
+            Utilities.eventSetting(time_recycler_view, dayCD)
             dialog.dismiss()
         }
         builder.setNegativeButton("Cancel") { dialog, which ->
