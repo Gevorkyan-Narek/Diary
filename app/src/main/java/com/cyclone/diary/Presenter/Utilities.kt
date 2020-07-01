@@ -47,8 +47,8 @@ class Utilities {
 
         fun checkOnNull(
             title: Editable,
-            timeStart: LocalDateTime?,
-            timeEnd: LocalDateTime?,
+            timeStart: LocalDateTime,
+            timeEnd: LocalDateTime,
             date: Editable,
             context: Context
         ): Boolean {
@@ -57,7 +57,7 @@ class Utilities {
         Toast.makeText(context, "Write a title", Toast.LENGTH_SHORT).show()
                     false
                 }
-                timeStart!!.isAfter(timeEnd) -> {
+                timeStart > timeEnd -> {
         Toast.makeText(context, "Time of start can't be more than time of end", Toast.LENGTH_SHORT).show()
                     false
                 }

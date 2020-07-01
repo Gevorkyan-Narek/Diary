@@ -70,6 +70,8 @@ class EventView : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun timePicker() {
+        time.text = SimpleDateFormat("HH:mm", Locale.getDefault()).format(cStart.time)
+        endtime.text = SimpleDateFormat("HH:mm", Locale.getDefault()).format(cEnd.time)
         time.setOnClickListener {
             val tpd = TimePickerDialog.OnTimeSetListener { view, hourOfDay, minute ->
                 cStart.set(Calendar.HOUR_OF_DAY, hourOfDay)
